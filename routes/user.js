@@ -4,10 +4,12 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const userValidationMiddleware = require('../validators/userValidator');
 const sendEmail = require('../utils/emailServer');
+const crypto = require("crypto");
+
 
 const router = express.Router();
 
-router.post('/register', userValidationMiddleware, async (req, res) => {
+router.post('/register',userValidationMiddleware, async (req, res) => {
     try {
         const { username, password, email, role } = req.body;
 
@@ -21,7 +23,7 @@ router.post('/register', userValidationMiddleware, async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Validate role (optional)
-        const validRoles = ['admin', 'student', 'instructor'];
+        const validRoles = ['student', 'instructor'];
         if (!validRoles.includes(role)) {
             return res.status(400).json({ message: 'Invalid role specified' });
         }
@@ -30,8 +32,10 @@ router.post('/register', userValidationMiddleware, async (req, res) => {
         const user = new User({ username, password: hashedPassword, email, role });
         await user.save();
 
+        const receiver = email;
+        console.log(receiver);
         await sendEmail({
-            to: email,
+            to: receiver,
             subject: 'Welcome to our platform',
             text: `Hello ${username}, welcome to our platform!`
         });
@@ -66,9 +70,6 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 });
-
-const crypto = require("crypto");
-const User = require("../models/User");
 
 router.post("/forgot-password", async (req, res) => {
     try {

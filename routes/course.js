@@ -3,6 +3,7 @@ const Course = require('../models/Course');
 const auth  = require('../middleware/auth');
 const {body, validationResult} = require('express-validator');
 const courseValidationMiddleware = require('../validators/courseValidator');
+const {upload} = require('../utils/cloudinary');
 
 const router = express.Router();
 
@@ -101,6 +102,33 @@ router.post("/enroll/:id", auth, courseValidationMiddleware, async (req, res) =>
     } catch (error) {
         console.error('Error enrolling in course:', error);
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+});
+
+router.post('/upload', auth, upload.single('file'), async (req, res) => {
+    try {
+        if (req.user.role !== 'instructor') {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        res.json({ message: 'File uploaded successfully', url: req.file.path });
+    } catch (error) {
+        res.status(500).json({ message: 'Upload failed', error: error.message });
+    }
+});
+
+router.get('/analytics', auth, async (req, res) => {
+    try {
+        if (req.user.role !== 'instructor') {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
+        const analytics = await Course.aggregate([
+            { $project: { title: 1, totalStudents: { $size: '$students' } } }
+        ]);
+
+        res.json({ analytics });
+    } catch (error) {
+        res.status(500).json({ message: 'Analytics fetch failed', error: error.message });
     }
 });
 
