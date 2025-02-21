@@ -20,7 +20,7 @@ const sendEmail = async ({to, subject, text}) => {
             subject,
             text
         };
-        
+
         const info = await transporter.sendMail(mailOptions);
         console.log("Message sent: %s", info.response);
         console.log(`Email sent to ${to}`);
@@ -30,3 +30,5 @@ const sendEmail = async ({to, subject, text}) => {
 };
 
 module.exports = sendEmail;
+
+
