@@ -94,7 +94,7 @@ Authorization: Bearer <your-jwt-token>
 
 ## **Author**
 - Tempah
-- GitHub: [your-username](https://github.com/tempahh)
+- GitHub: [tempahh](https://github.com/tempahh)
 - Email: plance991@gmail.com
 
 ---
